@@ -6,7 +6,6 @@ def get_backslash_count(s):
     """Returns the number of backslashes in a url"""
     return sum(1 for i in range(len(s)) if s[i] is '/')
 
-
 def read_link(new_page):
     """Creates a new soup for each link in the games list"""
     game_page = urllib2.urlopen(new_page).read()
