@@ -69,7 +69,7 @@ dataset = dset.ImageFolder(
     root=opt.dataRoot,
     transform=transforms.Compose([
             transforms.Scale(opt.imageSize),
-            #transforms.CenterCrop(opt.imageSize),
+            transforms.CenterCrop(opt.imageSize),
             transforms.ToTensor(),
             transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)), # bring images to (-1,1)
         ])
