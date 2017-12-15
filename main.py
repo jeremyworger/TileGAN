@@ -24,8 +24,8 @@ parser.add_argument('--workers', type=int, default=2, help='number of data loadi
 parser.add_argument('--batchSize', type=int, default=8, help='input batch size')
 parser.add_argument('--imageSize', type=int, default=224, help='the height / width of the input image to network')
 parser.add_argument('--nz', type=int, default=100, help='size of the latent z vector')
-parser.add_argument('--ngf', type=int, default=64)
-parser.add_argument('--ndf', type=int, default=64)
+parser.add_argument('--ngf', type=int, default=224)
+parser.add_argument('--ndf', type=int, default=224)
 parser.add_argument('--niter', type=int, default=25, help='number of epochs to train for')
 parser.add_argument('--lr', type=float, default=0.0002, help='learning rate, default=0.0002')
 parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
@@ -122,6 +122,7 @@ fixed_noise = Variable(fixed_noise)
 optimizerD = optim.Adam(netD.parameters(), lr = opt.lr, betas = (opt.beta1, 0.999))
 optimizerG = optim.Adam(netG.parameters(), lr = opt.lr, betas = (opt.beta1, 0.999))
 
+# begin training for n epochs
 for epoch in range(opt.niter):
     for i, data in enumerate(dataloader, 0):
         start_iter = time.time()
