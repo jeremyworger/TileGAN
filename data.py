@@ -7,12 +7,9 @@ page = urllib2.urlopen(url).read()
 soup = BeautifulSoup(page, "html5lib")
 links = [link for link in soup.select('ol > li > a') if '_self' not in link.get('target', '')]
 
-def get_backslash_count(str):
-    slash_count = 0
-    for i in range(len(str)):
-        if str[i] is '/':
-            slash_count += 1
-    return slash_count
+def get_backslash_count(s):
+    """Returns the number of backslashes in a url"""
+    return sum(1 for i in range(len(s)) if s[i] is '/')
 
 def read_link(new_page):
     """Creates a new soup for each link in the games list"""
@@ -23,14 +20,10 @@ def read_link(new_page):
 
     for image in images:
         image = image["src"].split("src=")[-1]
-        print(image)
         n = get_backslash_count(str(image))
-        print(n)
         if n > 0:
             continue
-
         image_url = new_page.replace(new_page.split('/')[-1], image)
-        print(image_url)
         urllib.urlretrieve(image_url, image)
 
 for link in links:
