@@ -1,42 +1,38 @@
-# from bs4 import BeautifulSoup
-# from urllib2 import urlopen
-# import urllib
-
-# # image scraper functions
-# def make_soup(url):
-#     html = urlopen(url).read()
-#     return BeautifulSoup(html, "html5lib")
-
-# def get_images(url):
-#     # soup = make_soup(url)
-#     uls = []
-#     lis = [li for ul in uls for li in ul.findAll('li')]
-#     print(lis)
-#     # images = [img for img in soup.findAll('img')]
-#     # print(str(len(images)) + "images found.")
-#     # print("Downloading images to current working directory.")
-
-#     # image_links = [each.get('src') for each in images]
-#     # for each in image_links:
-#     #     filename = each.split('/')[-1]
-#     #     urllib.urlretrieve(each, filename)
-#     # return image_links
-
+import urllib
 import urllib2
 from bs4 import BeautifulSoup
 
 url = "http://www.vgmuseum.com/nes_b.html"
 page = urllib2.urlopen(url).read()
 soup = BeautifulSoup(page, "html5lib")
-
-# filters links routing back to the same page
 links = [link for link in soup.select('ol > li > a') if '_self' not in link.get('target', '')]
 
+def get_backslash_count(str):
+    slash_count = 0
+    for i in range(len(str)):
+        if str[i] is '/':
+            slash_count += 1
+    return slash_count
+
 def read_link(new_page):
+    """Creates a new soup for each link in the games list"""
     game_page = urllib2.urlopen(new_page).read()
     game_soup = BeautifulSoup(game_page, "html5lib")
-    images = [img for img in game_soup.findAll('img')]
-    print(str(len(images)) + "images found.")
+    images = game_soup.find_all('img', src=True)
+    print(str(len(images)) + " images found.")
+
+    for image in images:
+        image = image["src"].split("src=")[-1]
+        print(image)
+        n = get_backslash_count(str(image))
+        print(n)
+        if n > 0:
+            continue
+
+        image_url = new_page.replace(new_page.split('/')[-1], image)
+        print(image_url)
+        urllib.urlretrieve(image_url, image)
 
 for link in links:
-    read_link("http://www.vgmuseum.com/" + link.get('href'))
+    img_url = "http://www.vgmuseum.com/" + link.get('href')
+    read_link(img_url)
