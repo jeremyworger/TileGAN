@@ -24,8 +24,8 @@ parser.add_argument('--workers', type=int, default=2, help='number of data loadi
 parser.add_argument('--batchSize', type=int, default=8, help='input batch size')
 parser.add_argument('--imageSize', type=int, default=224, help='the height / width of the input image to network')
 parser.add_argument('--nz', type=int, default=100, help='size of the latent z vector')
-parser.add_argument('--ngf', type=int, default=224)
-parser.add_argument('--ndf', type=int, default=224)
+parser.add_argument('--ngf', type=int, default=64)
+parser.add_argument('--ndf', type=int, default=64)
 parser.add_argument('--niter', type=int, default=25, help='number of epochs to train for')
 parser.add_argument('--lr', type=float, default=0.0002, help='learning rate, default=0.0002')
 parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
@@ -64,6 +64,7 @@ ngf = opt.ngf
 ndf = opt.ndf
 n_extra_d = opt.n_extra_layers_d
 n_extra_g = opt.n_extra_layers_g
+img_size = opt.imageSize
 
 dataset = dset.ImageFolder(
     root=opt.dataRoot,
@@ -91,8 +92,7 @@ if opt.netD != '':
     netD.load_state_dict(torch.load(opt.netD))
 print(netD)
 
-criterion = nn.BCELoss()
-criterion_MSE = nn.MSELoss()
+criterion = nn.BCELoss() 
 
 input = torch.FloatTensor(opt.batchSize, 3, opt.imageSize, opt.imageSize)
 noise = torch.FloatTensor(opt.batchSize, nz, 1, 1)
@@ -109,7 +109,6 @@ if opt.cuda:
     netD.cuda()
     netG.cuda()
     criterion.cuda()
-    criterion_MSE.cuda()
     input, label = input.cuda(), label.cuda()
     noise, fixed_noise = noise.cuda(), fixed_noise.cuda()
     
@@ -160,9 +159,6 @@ for epoch in range(opt.niter):
         output = netD(fake)
         errG = criterion(output, label)
         errG.backward(retain_variables=True) # True if backward through the graph for the second time
-        if opt.model == 2: # with z predictor
-            errG_z = criterion_MSE(z_prediction, noise)
-            errG_z.backward()
         D_G_z2 = output.data.mean()
         optimizerG.step()
         
